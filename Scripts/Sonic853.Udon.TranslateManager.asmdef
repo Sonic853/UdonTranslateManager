@@ -1,0 +1,20 @@
+{
+    "name": "Sonic853.Udon.TranslateManager",
+    "rootNamespace": "",
+    "references": [
+        "Unity.TextMeshPro",
+        "UdonSharp.Runtime",
+        "VRC.Udon",
+        "Sonic853.UdonLab.ArrayPlus",
+        "Koyashiro.GenericDataContainer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
