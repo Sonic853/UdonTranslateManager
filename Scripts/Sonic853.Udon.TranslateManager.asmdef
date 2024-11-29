@@ -5,8 +5,7 @@
         "Unity.TextMeshPro",
         "UdonSharp.Runtime",
         "VRC.Udon",
-        "Sonic853.UdonLab.ArrayPlus",
-        "Koyashiro.GenericDataContainer"
+        "Sonic853.UdonLab.ArrayPlus"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

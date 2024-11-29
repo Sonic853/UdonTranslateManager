@@ -1,6 +1,5 @@
 ﻿
 using System.Text;
-using Koyashiro.GenericDataContainer;
 using UdonLab;
 using UdonSharp;
 using UnityEngine;

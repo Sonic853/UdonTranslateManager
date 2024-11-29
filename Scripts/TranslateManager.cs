@@ -18,6 +18,7 @@ namespace Sonic853.Translate
         string[] originalTMP_Texts = new string[0];
         TranslatePo currentTranslatePo;
         bool loadedTranslate = false;
+        public bool LoadedTranslate => loadedTranslate;
         [SerializeField] UdonBehaviour[] sendFunctions;
         public static TranslateManager Instance()
         {
