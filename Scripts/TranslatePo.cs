@@ -13,18 +13,20 @@ namespace Sonic853.Translate
         [SerializeField] private TextAsset poFile;
         public string language;
         [TextArea(3, 10)]
-        // [HideInInspector]
+        [HideInInspector]
         [SerializeField] private string[] msgids = new string[0];
         public string[] Msgids => msgids;
         [TextArea(3, 10)]
-        // [HideInInspector]
+        [HideInInspector]
         [SerializeField] private string[] msgstrs = new string[0];
         public string[] Msgstrs => msgstrs;
         [HideInInspector]
         [SerializeField] public string _language;
         [HideInInspector] public string lastTranslator = "anonymous";
-        // bool dictionaryLoaded = false;
+        bool dictionaryLoaded = false;
         DataDictionary dataDictionary = new DataDictionary();
+        public void ReadPoFile() => ReadPoFile(false);
+        public void ReadPoFileForce() => ReadPoFile(true);
         public void ReadPoFile(bool force = false)
         {
             if (poFile == null)
@@ -32,13 +34,13 @@ namespace Sonic853.Translate
                 Debug.LogError("poFile is null");
                 return;
             }
-            // if (!force && msgids.Length > 0 && msgstrs.Length > 0)
-            // {
-            //     if (!dictionaryLoaded) LoadDictionary();
-            //     return;
-            // }
+            if (!force && msgids.Length > 0 && msgstrs.Length > 0)
+            {
+                if (!dictionaryLoaded) LoadDictionary();
+                return;
+            }
             dataDictionary.Clear();
-            // dictionaryLoaded = false;
+            dictionaryLoaded = false;
             msgids = new string[0];
             msgstrs = new string[0];
             var lines = poFile.text.Split('\n');
@@ -59,7 +61,7 @@ namespace Sonic853.Translate
                     var text = line.Substring(7, line.LastIndexOf('"') - 7);
                     // UdonArrayPlus.Add(ref msgids, Decode(text, 0, text.Length));
                     msgid = Decode(text, 0, text.Length);
-                    msgstr = "";
+                    lastmsgid = msgstr = null;
                     msgidIndex++;
                     // msgidIndex = msgids.Length - 1;
                     // msgstrIndex = -1;
@@ -69,9 +71,16 @@ namespace Sonic853.Translate
                     var text = line.Substring(8, line.LastIndexOf('"') - 8);
                     // UdonArrayPlus.Add(ref msgstrs, Decode(text, 0, text.Length));
                     msgstr = Decode(text, 0, text.Length);
-                    dataDictionary.Add(msgid, msgstr);
+                    if (dataDictionary.ContainsKey(msgid))
+                    {
+                        dataDictionary.SetValue(msgid, msgstr);
+                    }
+                    else
+                    {
+                        dataDictionary.Add(msgid, msgstr);
+                    }
                     lastmsgid = msgid;
-                    msgid = "";
+                    msgid = null;
                     msgstrIndex++;
                     // msgstrIndex = msgstrs.Length - 1;
                     // msgidIndex = -1;
@@ -94,17 +103,17 @@ namespace Sonic853.Translate
                 }
                 else if (line.StartsWith("\""))
                 {
-                    if (!string.IsNullOrEmpty(msgid) && msgidIndex != 0)
+                    if (msgid != null || msgid == "" && msgstr == null && msgidIndex != 0)
                     {
                         var text = line.Substring(1, line.LastIndexOf('"') - 1);
                         msgid += Decode(text, 0, text.Length);
                         // msgids[msgidIndex] += Decode(text, 0, text.Length);
                     }
-                    else if (!string.IsNullOrEmpty(msgstr) && msgstrIndex != 0)
+                    else if (msgstr != null || msgstr == "" && msgid == null  && msgstrIndex != 0)
                     {
                         var text = line.Substring(1, line.LastIndexOf('"') - 1);
                         msgstr += Decode(text, 0, text.Length);
-                        if (!string.IsNullOrEmpty(lastmsgid) && dataDictionary.ContainsKey(lastmsgid))
+                        if (lastmsgid != null && dataDictionary.ContainsKey(lastmsgid))
                         {
                             dataDictionary.SetValue(lastmsgid, msgstr);
                         }
@@ -112,7 +121,7 @@ namespace Sonic853.Translate
                     }
                 }
             }
-            // dictionaryLoaded = true;
+            dictionaryLoaded = true;
             LoadArray();
             if (msgids.Length != msgstrs.Length)
             {
@@ -121,15 +130,15 @@ namespace Sonic853.Translate
             }
             // LoadDictionary();
         }
-        // public void LoadDictionary()
-        // {
-        //     dataDictionary.Clear();
-        //     for (var i = 0; i < msgids.Length; i++)
-        //     {
-        //         dataDictionary.Add(msgids[i], msgstrs[i]);
-        //     }
-        //     dictionaryLoaded = true;
-        // }
+        public void LoadDictionary()
+        {
+            dataDictionary.Clear();
+            for (var i = 0; i < msgids.Length; i++)
+            {
+                dataDictionary.Add(msgids[i], msgstrs[i]);
+            }
+            dictionaryLoaded = true;
+        }
         public void LoadArray()
         {
             msgids = new string[dataDictionary.Count];
@@ -139,7 +148,7 @@ namespace Sonic853.Translate
             {
                 var msgidKey = msgidKeys[i];
                 msgids[i] = msgidKey.String;
-                if (!dataDictionary.TryGetValue(msgidKey, out var value)) { continue; } 
+                if (!dataDictionary.TryGetValue(msgidKey, out var value)) { continue; }
                 msgstrs[i] = value.String;
             }
         }
