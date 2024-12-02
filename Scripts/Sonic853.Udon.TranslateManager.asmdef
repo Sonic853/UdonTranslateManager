@@ -4,8 +4,7 @@
     "references": [
         "Unity.TextMeshPro",
         "UdonSharp.Runtime",
-        "VRC.Udon",
-        "Sonic853.UdonLab.ArrayPlus"
+        "VRC.Udon"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
