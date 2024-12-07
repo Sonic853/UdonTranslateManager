@@ -215,6 +215,16 @@ namespace Sonic853.Translate
         }
         public string GetOriginalText(string text)
         {
+            if (!dataDictionary.ContainsValue(text)) { return text; }
+            var keys = dataDictionary.GetKeys();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var key = keys[i];
+                if (!dataDictionary.TryGetValue(key, out var value)
+                || value.TokenType != TokenType.String
+                || value.String != text) { continue; }
+                return key.String;
+            }
             return text;
         }
     }

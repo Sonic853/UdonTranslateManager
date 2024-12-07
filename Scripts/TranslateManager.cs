@@ -10,7 +10,7 @@ namespace Sonic853.Translate
 {
     public class TranslateManager : UdonSharpBehaviour
     {
-        public string currentLanguage = "zh-CN";
+        public string currentLanguage = "en";
         [SerializeField] TranslatePo[] translates;
         [SerializeField] Text[] texts;
         string[] originalTexts = new string[0];
