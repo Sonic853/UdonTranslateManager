@@ -113,7 +113,7 @@ namespace Sonic853.Translate
                     {
                         var text = line.Substring(1, line.LastIndexOf('"') - 1);
                         msgstr += Decode(text, 0, text.Length);
-                        if (lastmsgid != null && dataDictionary.ContainsKey(lastmsgid))
+                        if (!string.IsNullOrEmpty(lastmsgid) && dataDictionary.ContainsKey(lastmsgid))
                         {
                             dataDictionary.SetValue(lastmsgid, msgstr);
                         }
