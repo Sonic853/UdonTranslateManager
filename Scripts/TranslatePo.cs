@@ -209,7 +209,6 @@ namespace Sonic853.Translate
             //     }
             //     return text;
             // }
-            if (!dataDictionary.ContainsKey(text)) { return text; }
             if (!dataDictionary.TryGetValue(text, out var value)) { return text; }
             return value.String;
         }
