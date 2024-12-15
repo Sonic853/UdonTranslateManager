@@ -44,11 +44,13 @@ namespace Sonic853.Translate
             originalTMP_Texts = new string[tMP_Texts.Length];
             for (int i = 0; i < texts.Length; i++)
             {
-                originalTexts.SetValue(texts[i] == null ? "" : texts[i].text, i);
+                // originalTexts.SetValue(texts[i] == null ? "" : texts[i].text, i);
+                originalTexts[i] = texts[i] == null ? "" : texts[i].text;
             }
             for (int i = 0; i < tMP_Texts.Length; i++)
             {
-                originalTMP_Texts.SetValue(tMP_Texts[i] == null ? "" : tMP_Texts[i].text, i);
+                // originalTMP_Texts.SetValue(tMP_Texts[i] == null ? "" : tMP_Texts[i].text, i);
+                originalTMP_Texts[i] = tMP_Texts[i] == null ? "" : tMP_Texts[i].text;
             }
         }
         public void LoadTranslate() => LoadTranslate(currentLanguage);
