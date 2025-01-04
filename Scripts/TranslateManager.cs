@@ -81,11 +81,15 @@ namespace Sonic853.Translate
             if (originalTexts.Length == 0 || originalTMP_Texts.Length == 0) LoadOriginalText();
             for (int i = 0; i < texts.Length; i++)
             {
-                texts[i].text = GetText(originalTexts[i]);
+                var text = texts[i];
+                if (text == null) { continue; }
+                text.text = GetText(originalTexts[i]);
             }
             for (int i = 0; i < tMP_Texts.Length; i++)
             {
-                tMP_Texts[i].text = GetText(originalTMP_Texts[i]);
+                var text = tMP_Texts[i];
+                if (text == null) { continue; }
+                text.text = GetText(originalTMP_Texts[i]);
             }
             foreach (var sendFunction in sendFunctions)
             {
