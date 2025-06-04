@@ -1,4 +1,4 @@
-﻿
+
 using System.Text;
 using UdonSharp;
 using UnityEngine;
@@ -27,7 +27,26 @@ namespace Sonic853.Translate
         DataDictionary dataDictionary = new DataDictionary();
         public void ReadPoFile() => ReadPoFile(false);
         public void ReadPoFileForce() => ReadPoFile(true);
-        public void ReadPoFile(bool force = false)
+        public void ReadPoFile(bool force = false) => ReadPoFile(
+            poFile,
+            ref dataDictionary,
+            ref msgids,
+            ref msgstrs,
+            ref _language,
+            ref lastTranslator,
+            ref dictionaryLoaded,
+            force
+        );
+        static void ReadPoFile(
+            TextAsset poFile,
+            ref DataDictionary dataDictionary,
+            ref string[] msgids,
+            ref string[] msgstrs,
+            ref string _language,
+            ref string lastTranslator,
+            ref bool dictionaryLoaded,
+            bool force = false
+        )
         {
             if (poFile == null)
             {
@@ -36,7 +55,7 @@ namespace Sonic853.Translate
             }
             if (!force && msgids.Length > 0 && msgstrs.Length > 0)
             {
-                if (!dictionaryLoaded) LoadDictionary();
+                if (!dictionaryLoaded) LoadDictionary(msgids, msgstrs, ref dataDictionary, ref dictionaryLoaded);
                 return;
             }
             dataDictionary.Clear();
@@ -109,7 +128,7 @@ namespace Sonic853.Translate
                         msgid += Decode(text, 0, text.Length);
                         // msgids[msgidIndex] += Decode(text, 0, text.Length);
                     }
-                    else if (msgstr != null || msgstr == "" && msgid == null  && msgstrIndex != 0)
+                    else if (msgstr != null || msgstr == "" && msgid == null && msgstrIndex != 0)
                     {
                         var text = line.Substring(1, line.LastIndexOf('"') - 1);
                         msgstr += Decode(text, 0, text.Length);
@@ -122,15 +141,15 @@ namespace Sonic853.Translate
                 }
             }
             dictionaryLoaded = true;
-            LoadArray();
+            LoadArray(ref msgids, ref msgstrs, dataDictionary);
             if (msgids.Length != msgstrs.Length)
             {
                 Debug.LogError("msgids.Length != msgstrs.Length");
                 return;
             }
-            // LoadDictionary();
         }
-        public void LoadDictionary()
+        public void LoadDictionary() => LoadDictionary(msgids, msgstrs, ref dataDictionary, ref dictionaryLoaded);
+        static void LoadDictionary(string[] msgids, string[] msgstrs, ref DataDictionary dataDictionary, ref bool dictionaryLoaded)
         {
             dataDictionary.Clear();
             for (var i = 0; i < msgids.Length; i++)
@@ -139,7 +158,8 @@ namespace Sonic853.Translate
             }
             dictionaryLoaded = true;
         }
-        public void LoadArray()
+        public void LoadArray() => LoadArray(ref msgids, ref msgstrs, dataDictionary);
+        static void LoadArray(ref string[] msgids, ref string[] msgstrs, DataDictionary dataDictionary)
         {
             msgids = new string[dataDictionary.Count];
             msgstrs = new string[dataDictionary.Count];
@@ -152,7 +172,7 @@ namespace Sonic853.Translate
                 msgstrs[i] = value.String;
             }
         }
-        string Decode(string source, int startIndex, int count, string newLine = "\n")
+        static string Decode(string source, int startIndex, int count, string newLine = "\n")
         {
             var builder = new StringBuilder();
             for (var endIndex = startIndex + count; startIndex < endIndex; startIndex++)

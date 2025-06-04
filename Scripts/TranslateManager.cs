@@ -20,6 +20,7 @@ namespace Sonic853.Translate
         bool loadedTranslate = false;
         public bool LoadedTranslate => loadedTranslate;
         [SerializeField] UdonBehaviour[] sendFunctions;
+        [SerializeField] bool enableOnLanguageChanged = true;
         public static TranslateManager Instance()
         {
             var obj = GameObject.Find("TranslateManager");
@@ -60,13 +61,11 @@ namespace Sonic853.Translate
             loadedTranslate = false;
             foreach (var translate in translates)
             {
+                if (translate.language != _currentLanguage) { continue; }
                 if (translate.Msgids.Length == 0 || translate.Msgstrs.Length == 0) translate.ReadPoFile();
-                if (translate.language == _currentLanguage)
-                {
-                    LoadTranslate(translate, loadUI);
-                    loadedTranslate = true;
-                    return;
-                }
+                LoadTranslate(translate, loadUI);
+                loadedTranslate = true;
+                return;
             }
             if (translates.Length > 0 && currentTranslatePo == null)
             {
@@ -78,6 +77,7 @@ namespace Sonic853.Translate
         public void LoadTranslate(TranslatePo translate, bool loadUI = true)
         {
             if (currentTranslatePo == translate) { return; }
+            currentLanguage = translate.language;
             currentTranslatePo = translate;
             if (loadUI) TranslateUI();
         }
@@ -103,6 +103,11 @@ namespace Sonic853.Translate
             {
                 sendFunction.SendCustomEvent("TranslateUI");
             }
+        }
+        public override void OnLanguageChanged(string language)
+        {
+            if (!enableOnLanguageChanged) { return; }
+            LoadTranslate(language);
         }
         public string GetText(string text) => loadedTranslate ? currentTranslatePo.GetText(text) : text;
     }
