@@ -62,7 +62,6 @@ namespace Sonic853.Translate
             foreach (var translate in translates)
             {
                 if (translate.language != _currentLanguage) { continue; }
-                if (translate.Msgids.Length == 0 || translate.Msgstrs.Length == 0) translate.ReadPoFile();
                 LoadTranslate(translate, loadUI);
                 loadedTranslate = true;
                 return;
@@ -77,16 +76,18 @@ namespace Sonic853.Translate
         public void LoadTranslate(TranslatePo translate, bool loadUI = true)
         {
             if (currentTranslatePo == translate) { return; }
-            currentLanguage = translate.language;
             currentTranslatePo = translate;
+            if (currentTranslatePo.Msgids.Length == 0 || currentTranslatePo.Msgstrs.Length == 0) currentTranslatePo.ReadPoFile();
+            currentLanguage = currentTranslatePo.language;
             if (loadUI) TranslateUI();
         }
         public void LoadTranslate0() => LoadTranslate(translates[0]);
         public void LoadTranslate1() => LoadTranslate(translates[1]);
         public void LoadTranslate2() => LoadTranslate(translates[2]);
+        public void LoadTranslate3() => LoadTranslate(translates[3]);
         public void TranslateUI()
         {
-            if (originalTexts.Length == 0 || originalTMP_Texts.Length == 0) LoadOriginalText();
+            if (originalTexts.Length == 0 && originalTMP_Texts.Length == 0) LoadOriginalText();
             for (int i = 0; i < texts.Length; i++)
             {
                 var text = texts[i];
