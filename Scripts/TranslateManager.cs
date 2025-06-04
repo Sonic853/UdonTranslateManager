@@ -63,19 +63,27 @@ namespace Sonic853.Translate
                 if (translate.Msgids.Length == 0 || translate.Msgstrs.Length == 0) translate.ReadPoFile();
                 if (translate.language == _currentLanguage)
                 {
-                    currentTranslatePo = translate;
+                    LoadTranslate(translate, loadUI);
                     loadedTranslate = true;
-                    if (loadUI) TranslateUI();
                     return;
                 }
             }
             if (translates.Length > 0 && currentTranslatePo == null)
             {
-                currentTranslatePo = translates[0];
+                LoadTranslate(translates[0], loadUI);
                 loadedTranslate = currentTranslatePo != null;
             }
+            else if (loadUI) TranslateUI();
+        }
+        public void LoadTranslate(TranslatePo translate, bool loadUI = true)
+        {
+            if (currentTranslatePo == translate) { return; }
+            currentTranslatePo = translate;
             if (loadUI) TranslateUI();
         }
+        public void LoadTranslate0() => LoadTranslate(translates[0]);
+        public void LoadTranslate1() => LoadTranslate(translates[1]);
+        public void LoadTranslate2() => LoadTranslate(translates[2]);
         public void TranslateUI()
         {
             if (originalTexts.Length == 0 || originalTMP_Texts.Length == 0) LoadOriginalText();
