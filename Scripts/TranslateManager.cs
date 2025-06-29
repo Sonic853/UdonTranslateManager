@@ -10,6 +10,7 @@ namespace Sonic853.Translate
 {
     public class TranslateManager : UdonSharpBehaviour
     {
+        public bool InitAtStart = true;
         public string currentLanguage = "en";
         [SerializeField] TranslatePo[] translates;
         [SerializeField] Text[] texts;
@@ -21,20 +22,26 @@ namespace Sonic853.Translate
         public bool LoadedTranslate => loadedTranslate;
         [SerializeField] UdonBehaviour[] sendFunctions;
         [SerializeField] bool enableOnLanguageChanged = true;
-        public static TranslateManager Instance()
+        public static TranslateManager Instance() => Instance("TranslateManager");
+        public static TranslateManager InstanceGlobal() => Instance("TranslateManager.Global");
+        public static TranslateManager Instance(string gameObjectName = "TranslateManager")
         {
-            var obj = GameObject.Find("TranslateManager");
+            var obj = GameObject.Find(gameObjectName);
             if (obj == null)
             {
-                Debug.LogError("TranslateManager not found");
+                Debug.LogError($"TranslateManager: {gameObjectName} not found");
                 return null;
             }
             return (TranslateManager)obj.GetComponent(typeof(UdonBehaviour));
         }
         void Start()
         {
+            if (InitAtStart) Init();
+        }
+        public void Init()
+        {
             LoadOriginalText();
-            currentLanguage = VRCPlayerApi.GetCurrentLanguage() ?? currentLanguage;
+            currentLanguage = (VRCPlayerApi.GetCurrentLanguage() ?? currentLanguage).Replace("_", "-").ToLower();
             LoadTranslate(currentLanguage);
             TranslateUI();
         }
@@ -61,7 +68,7 @@ namespace Sonic853.Translate
             loadedTranslate = false;
             foreach (var translate in translates)
             {
-                if (translate.language != _currentLanguage) { continue; }
+                if (translate.language.Replace("_", "-").ToLower() != _currentLanguage) { continue; }
                 LoadTranslate(translate, loadUI);
                 loadedTranslate = true;
                 return;
@@ -75,10 +82,11 @@ namespace Sonic853.Translate
         }
         public void LoadTranslate(TranslatePo translate, bool loadUI = true)
         {
+            Debug.Log($"LoadTranslate File: {translate.language}");
             if (currentTranslatePo == translate) { return; }
             currentTranslatePo = translate;
             if (currentTranslatePo.Msgids.Length == 0 || currentTranslatePo.Msgstrs.Length == 0) currentTranslatePo.ReadPoFile();
-            currentLanguage = currentTranslatePo.language;
+            currentLanguage = currentTranslatePo.language.Replace("_", "-").ToLower();
             if (loadUI) TranslateUI();
         }
         public void LoadTranslate0() => LoadTranslate(translates[0]);
@@ -108,7 +116,8 @@ namespace Sonic853.Translate
         public override void OnLanguageChanged(string language)
         {
             if (!enableOnLanguageChanged) { return; }
-            LoadTranslate(language);
+            // currentLanguage = VRCPlayerApi.GetCurrentLanguage() ?? currentLanguage;
+            LoadTranslate(language.Replace("_", "-").ToLower());
         }
         public string GetText(string text) => loadedTranslate ? currentTranslatePo.GetText(text) : text;
     }

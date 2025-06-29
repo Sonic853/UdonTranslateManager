@@ -1,4 +1,4 @@
-
+﻿
 using System.Text;
 using UdonSharp;
 using UnityEngine;
@@ -13,38 +13,39 @@ namespace Sonic853.Translate
         [SerializeField] private TextAsset poFile;
         public string language;
         [TextArea(3, 10)]
-        [HideInInspector]
-        [SerializeField] private string[] msgids = new string[0];
+        [HideInInspector, SerializeField]
+        private string[] msgids = new string[0];
         public string[] Msgids => msgids;
         [TextArea(3, 10)]
-        [HideInInspector]
-        [SerializeField] private string[] msgstrs = new string[0];
+        [HideInInspector, SerializeField]
+        private string[] msgstrs = new string[0];
         public string[] Msgstrs => msgstrs;
+        [HideInInspector, SerializeField]
+        public string _language;
         [HideInInspector]
-        [SerializeField] public string _language;
-        [HideInInspector] public string lastTranslator = "anonymous";
+        public string lastTranslator = "anonymous";
         bool dictionaryLoaded = false;
         DataDictionary dataDictionary = new DataDictionary();
         public void ReadPoFile() => ReadPoFile(false);
         public void ReadPoFileForce() => ReadPoFile(true);
         public void ReadPoFile(bool force = false) => ReadPoFile(
             poFile,
-            ref dataDictionary,
             ref msgids,
             ref msgstrs,
+            ref dataDictionary,
+            ref dictionaryLoaded,
             ref _language,
             ref lastTranslator,
-            ref dictionaryLoaded,
             force
         );
-        static void ReadPoFile(
+        public static void ReadPoFile(
             TextAsset poFile,
-            ref DataDictionary dataDictionary,
             ref string[] msgids,
             ref string[] msgstrs,
-            ref string _language,
-            ref string lastTranslator,
+            ref DataDictionary dataDictionary,
             ref bool dictionaryLoaded,
+            ref string language,
+            ref string lastTranslator,
             bool force = false
         )
         {
@@ -55,7 +56,7 @@ namespace Sonic853.Translate
             }
             if (!force && msgids.Length > 0 && msgstrs.Length > 0)
             {
-                if (!dictionaryLoaded) LoadDictionary(msgids, msgstrs, ref dataDictionary, ref dictionaryLoaded);
+                if (!dictionaryLoaded) dictionaryLoaded = LoadDictionary(msgids, msgstrs, ref dataDictionary);
                 return;
             }
             dataDictionary.Clear();
@@ -107,9 +108,9 @@ namespace Sonic853.Translate
                 // 找到符合"Language: 的行，然后获取语言，同时去除后面的换行
                 else if (line.StartsWith("\"Language: ") && msgstrIndex == 0)
                 {
-                    _language = line.Substring(11, line.LastIndexOf('"') - 11);
+                    language = line.Substring(11, line.LastIndexOf('"') - 11);
                     // 找到并去除\n
-                    _language = _language.IndexOf("\\n") == -1 ? _language : _language.Substring(0, _language.LastIndexOf("\\n"));
+                    language = language.IndexOf("\\n") == -1 ? language : language.Substring(0, language.LastIndexOf("\\n"));
                 }
                 // 找到符合"Last-Translator: 的行，然后获取语言，同时去除后面的换行
                 else if (line.StartsWith("\"Last-Translator: ") && msgstrIndex == 0)
@@ -147,19 +148,19 @@ namespace Sonic853.Translate
                 Debug.LogError("msgids.Length != msgstrs.Length");
                 return;
             }
+            // LoadDictionary();
         }
-        public void LoadDictionary() => LoadDictionary(msgids, msgstrs, ref dataDictionary, ref dictionaryLoaded);
-        static void LoadDictionary(string[] msgids, string[] msgstrs, ref DataDictionary dataDictionary, ref bool dictionaryLoaded)
+        public static bool LoadDictionary(string[] msgids, string[] msgstrs, ref DataDictionary dataDictionary)
         {
             dataDictionary.Clear();
             for (var i = 0; i < msgids.Length; i++)
             {
                 dataDictionary.Add(msgids[i], msgstrs[i]);
             }
-            dictionaryLoaded = true;
+            return true;
         }
         public void LoadArray() => LoadArray(ref msgids, ref msgstrs, dataDictionary);
-        static void LoadArray(ref string[] msgids, ref string[] msgstrs, DataDictionary dataDictionary)
+        public static void LoadArray(ref string[] msgids, ref string[] msgstrs, DataDictionary dataDictionary)
         {
             msgids = new string[dataDictionary.Count];
             msgstrs = new string[dataDictionary.Count];
