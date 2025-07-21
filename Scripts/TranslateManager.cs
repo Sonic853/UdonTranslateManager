@@ -1,4 +1,5 @@
 ﻿
+using System;
 using TMPro;
 using UdonSharp;
 using UnityEngine;
@@ -14,8 +15,10 @@ namespace Sonic853.Translate
         public string currentLanguage = "en";
         [SerializeField] TranslatePo[] translates;
         [SerializeField] Text[] texts;
+        public Text[] Texts => texts;
         string[] originalTexts = new string[0];
         [SerializeField] TMP_Text[] tMP_Texts;
+        public TMP_Text[] TMP_Texts => tMP_Texts;
         string[] originalTMP_Texts = new string[0];
         TranslatePo currentTranslatePo;
         bool loadedTranslate = false;
@@ -60,6 +63,24 @@ namespace Sonic853.Translate
                 // originalTMP_Texts.SetValue(tMP_Texts[i] == null ? "" : tMP_Texts[i].text, i);
                 originalTMP_Texts[i] = tMP_Texts[i] == null ? "" : tMP_Texts[i].text;
             }
+        }
+        public void AddText(Text text, bool loadUI = true)
+        {
+            if (originalTexts.Length == 0 && originalTMP_Texts.Length == 0) LoadOriginalText();
+            var oldLength = texts.Length;
+            Add(ref texts, text, false);
+            if (oldLength == texts.Length) { return; }
+            Add(ref originalTexts, text.text);
+            if (loadUI) TranslateUI();
+        }
+        public void AddTMP_Text(TMP_Text tMP_Text, bool loadUI = true)
+        {
+            if (originalTexts.Length == 0 && originalTMP_Texts.Length == 0) LoadOriginalText();
+            var oldLength = tMP_Texts.Length;
+            Add(ref tMP_Texts, tMP_Text, false);
+            if (oldLength == tMP_Texts.Length) { return; }
+            Add(ref originalTMP_Texts, tMP_Text.text);
+            if (loadUI) TranslateUI();
         }
         public void LoadTranslate() => LoadTranslate(currentLanguage);
         public void LoadTranslate(string _currentLanguage, bool loadUI = true)
@@ -120,5 +141,24 @@ namespace Sonic853.Translate
             LoadTranslate(language.Replace("_", "-").ToLower());
         }
         public string GetText(string text) => loadedTranslate ? currentTranslatePo.GetText(text) : text;
+        #region Array
+        
+        static T[] Add<T>(T[] _array, T _value, bool duplicates = true)
+        {
+            if (!duplicates)
+            {
+                if (IndexOf(_array, _value) != -1)
+                    return _array;
+            }
+            var length = _array.Length;
+            var _newArray = new T[length + 1];
+            Array.Copy(_array, _newArray, length);
+            // _newArray.SetValue(_value, length);
+            _newArray[length] = _value;
+            return _newArray;
+        }
+        static T[] Add<T>(ref T[] _array, T _value, bool duplicates = true) => _array = Add(_array, _value, duplicates);
+        static int IndexOf<T>(T[] _array, T _value) => Array.IndexOf(_array, _value);
+        #endregion
     }
 }
