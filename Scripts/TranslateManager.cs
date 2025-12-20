@@ -21,6 +21,7 @@ namespace Sonic853.Translate
         public TMP_Text[] TMP_Texts => tMP_Texts;
         string[] originalTMP_Texts = new string[0];
         TranslatePo currentTranslatePo;
+        public TranslatePo CurrentTranslatePo => currentTranslatePo;
         bool loadedTranslate = false;
         public bool LoadedTranslate => loadedTranslate;
         [SerializeField] UdonBehaviour[] sendFunctions;
@@ -141,6 +142,7 @@ namespace Sonic853.Translate
             LoadTranslate(language.Replace("_", "-").ToLower());
         }
         public string GetText(string text) => loadedTranslate ? currentTranslatePo.GetText(text) : text;
+        public string GetOriginalText(string text) => loadedTranslate ? currentTranslatePo.GetOriginalText(text) : text;
         #region Array
         
         static T[] Add<T>(T[] _array, T _value, bool duplicates = true)
